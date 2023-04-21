@@ -13,9 +13,9 @@ const REDIRECT_URI = process.env.REDIRECT_URI;
 const SCOPES = ["https://www.googleapis.com/auth/calendar"];
 
 const oauth2Client = new google.auth.OAuth2(
-  CLIENT_ID,
-  CLIENT_SECRET,
-  REDIRECT_URI
+    CLIENT_ID,
+    CLIENT_SECRET,
+    REDIRECT_URI
 );
 
 // Generate a url that asks permissions for the Drive activity scope
@@ -57,12 +57,8 @@ const app = http.createServer((req, res) => {
                     if (q.error) {
                         console.log('Error:'+q.error);
                     } else {
-                        
+                        const { tokens } = await oauth2Client.getToken(q.code);
                     }
-                    const { tokens } = await oauth2Client.getToken(code);
-                    //req.session.credentials = tokens;
-                    //res.writeHead(302, {location: '/'});
-                    oauth2Client.setCredentials(tokens);
                 } catch(err) {
                     console.error(err);
                     res.writeHead(500, {
@@ -71,6 +67,23 @@ const app = http.createServer((req, res) => {
                     res.write("Error");
                     res.end();
                 }
+                /*
+                if (tokens) {
+                    oauth2Client.setCredentials(tokens);
+                    const calendar = google.calendar({ version: 'v3', oauth2Client });
+                    await calendar.events.list({
+                        calendarId: 'primary',
+                        timeMin: new Date().toISOString(),
+                        maxResults: 10,
+                        singleEvents: true,
+                        orderBy: 'startTime',
+                    });
+                    const events = res.data.items;
+                    events.map((item, i) => {
+                        const start = item.start.dateTime || item.start.date;
+                        console.log(`${start} - ${item.summary}`)
+                    });
+                }*/
             })();
             break;
         default:
