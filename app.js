@@ -5,6 +5,7 @@ const port = 8080;
 const http = require('http');
 const fs = require('fs');
 const url = require('url');
+require('dotenv').config()
 
 // ref: https://developers.google.com/identity/protocols/oauth2/web-server?hl=ja#node.js
 const CLIENT_ID = process.env.CLIENT_ID;
@@ -45,11 +46,11 @@ const app = http.createServer((req, res) => {
                 const calendar = google.calendar({ version: API_VERSION, auth: oauth2Client });
             }
             */
-            res.writeHead(301, {location: authorizationUrl});
-            res.end();
-            break;
+           res.writeHead(301, {location: authorizationUrl});
+           res.end();
+           break;
         // Receive the callback from Google's OAuth 2.0 server.
-        case req.url.startsWith('/oauth2callback') && req.url:
+        case req.url.startsWith('/redirect') && req.url:
             (async() => {
                 try {
                     // Handle the OAuth 2.0 server response
@@ -58,6 +59,22 @@ const app = http.createServer((req, res) => {
                         console.log('Error:'+q.error);
                     } else {
                         const { tokens } = await oauth2Client.getToken(q.code);
+                        oauth2Client.setCredentials(tokens);
+                        const calendar = google.calendar('v3');
+                        const res = await calendar.events.list({
+                            auth: oauth2Client,
+                            calendarId: 'primary',
+                            timeMin: new Date().toISOString(),
+                            maxResults: 10,
+                            singleEvents: true,
+                            orderBy: 'startTime',
+                        });
+                        const events = res.data.items;
+                        events.map((item, i) => {
+                            const start = item.start.dateTime || item.start.date;
+                            console.log(`${start} - ${item.summary}`)
+                        });
+                        
                     }
                 } catch(err) {
                     console.error(err);
@@ -67,23 +84,6 @@ const app = http.createServer((req, res) => {
                     res.write("Error");
                     res.end();
                 }
-                /*
-                if (tokens) {
-                    oauth2Client.setCredentials(tokens);
-                    const calendar = google.calendar({ version: 'v3', oauth2Client });
-                    await calendar.events.list({
-                        calendarId: 'primary',
-                        timeMin: new Date().toISOString(),
-                        maxResults: 10,
-                        singleEvents: true,
-                        orderBy: 'startTime',
-                    });
-                    const events = res.data.items;
-                    events.map((item, i) => {
-                        const start = item.start.dateTime || item.start.date;
-                        console.log(`${start} - ${item.summary}`)
-                    });
-                }*/
             })();
             break;
         default:
