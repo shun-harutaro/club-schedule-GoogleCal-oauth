@@ -38,14 +38,6 @@ const readFile = (file, response) => {
 const app = http.createServer((req, res) => {
     switch (req.url) {
         case '/':
-            /*
-            if (true) {
-                //res.redirect(authorizationUrl);
-            }else {
-                oauth2Client.setCredentials(req.session.credentials);
-                const calendar = google.calendar({ version: API_VERSION, auth: oauth2Client });
-            }
-            */
            res.writeHead(301, {location: authorizationUrl});
            res.end();
            break;
@@ -60,9 +52,8 @@ const app = http.createServer((req, res) => {
                     } else {
                         const { tokens } = await oauth2Client.getToken(q.code);
                         oauth2Client.setCredentials(tokens);
-                        const calendar = google.calendar('v3');
+                        const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
                         const res = await calendar.events.list({
-                            auth: oauth2Client,
                             calendarId: 'primary',
                             timeMin: new Date().toISOString(),
                             maxResults: 10,
