@@ -9,9 +9,9 @@ club-schedule-google-calendar のブラウザ版 https://github.com/shun-harutar
     - 右のリンクを参照（https://developers.google.com/calendar/api/quickstart/nodejs?hl=ja#authorize_credentials_for_a_desktop_application）
     ```shell
     touch .env
-    echo "CLIENT_ID=[client_id]" >> .env
-    echo "CLIENT_SECRET=[client_secret] >> .env
-    echo "REDIRECT_URI=[redirect_uri] >> .env
+    echo "CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com" >> .env
+    echo "CLIENT_SECRET=xxxxxxxxxxxxxxxxxxxxxxxx" >> .env
+    echo "REDIRECT_URI=http://localhost:8080/redirect" >> .env
     ```
 4. 実行する
 ```
